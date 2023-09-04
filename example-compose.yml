@@ -1,0 +1,13 @@
+version: "2"
+services:
+  campal:
+    image: wenjodev/campal
+    container_name: campal
+    environment:
+      - CAMPAL_DATA=/campal/data
+    ports:
+      - LOCALPORT:4000
+    volumes:
+      - "LOCALPATH_WHERE_TO_STORE_DB_AND_CACHE:/campal/data"
+      - "LOCALPATH_TO_PICTURES_TO_ACCESS:/campal/mounts/PICTURES:ro"
+      - "ANOTHER_PATH_TO_PICTURES_TO_ACCESS:/campal/mounts/MOREPICTURES:ro"

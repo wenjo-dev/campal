@@ -1,0 +1,5 @@
+node_modules
+frontend
+example-compose.yml
+.gitignore
+**/.DS_Store
