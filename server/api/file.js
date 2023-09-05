@@ -29,7 +29,7 @@ router.get("/preview/:id/:size", async (req, res) => {
 
         let size = Number(req.params.size);
         res.sendFile(await getPreview(req.params.id, !isNaN(size) ? size : false));
-    } catch(err) { console.log(err); res.statusCode(500); }
+    } catch(err) { console.log(err); res.sendStatus(500); }
 })
 
 router.get("/stream/:id", async (req, res) => {
@@ -67,7 +67,7 @@ router.get("/stream/:id", async (req, res) => {
             })
             createReadStream(path).pipe(res)
         }
-    } catch(err) { res.statusCode(400) }
+    } catch(err) { res.sendStatus(400) }
 })
 
 export default router;

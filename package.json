@@ -26,6 +26,7 @@
     "express-session": "^1.17.3",
     "express-static-gzip": "^2.1.7",
     "fluent-ffmpeg": "^2.1.2",
+    "forever": "^4.0.3",
     "fs": "^0.0.1-security",
     "heic-convert": "^1.2.4",
     "leaflet": "^1.9.4",

@@ -129,7 +129,8 @@ export function getFolderPath(id) {
 
 export function getFilePath(id, withFilename = false) {
     let file = db.prepare("SELECT * FROM files WHERE id = ?").get(id);
-    return join(getFolderPath(file.parent_id), (withFilename ? file.name : ""));
+    let path = file ? join(getFolderPath(file.parent_id), (withFilename ? file.name : "")) : "nope";
+    return path;
 }
 
 export function getParentFolders(id, isFile = false) {

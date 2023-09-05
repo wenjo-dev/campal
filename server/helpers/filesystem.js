@@ -21,12 +21,9 @@ export function fsinfo(elementPath) { // returns code: 0 = nonex./invalid; 1 = d
 
 function purgeObsoleteDbEntries(id) {
     let content = getContent(id);
+    
     for(let folder of content.folders) fsinfo(getFolderPath(folder)) || removeFolder(folder);
     for(let file of content.files) fsinfo(getFilePath(file, true)) || db.prepare("DELETE FROM files WHERE id = ?").run(file);
-
-    // remove obsolete folder thumbnails entries
-    let folders = db.prepare("SELECT id, thumbnail FROM folders").all().filter(e => e.thumbnail);
-    for(let folder of folders) if(!fsinfo(getFilePath(folder.thumbnail))) db.prepare("UPDATE folders SET thumbnail = ? WHERE id = ?").run(null, folder.id);
 }
 
 function setParentThumbnails(id) {
@@ -46,13 +43,6 @@ function setParentThumbnails(id) {
     for(let p of parentsWithoutThumbnails) updateStatement.run(id, p);
 }
 
-export async function indexFolderMT(id, parentjob, recursive = false) {
-    await wp.proxy().then(wpp => wpp.indexFolder(id, recursive));
-    console.log("running index in wp");
-}
-
-
-
 export async function indexFolder(id, recursive = false, parentjob) {
 
     let parentThumbnailsSet = false;
@@ -71,15 +61,18 @@ export async function indexFolder(id, recursive = false, parentjob) {
         let info = fsinfo(elementPath);
         if(info) switch(info.code) {
             case 1: // folder
-
                 // ignore certain elements
                 if(e.toLowerCase().includes("thumb") || e.toLowerCase().includes("cache") || e.startsWith(".")) continue;
-
 
                 let subfolderId = db.prepare("SELECT id FROM folders WHERE name = ? AND parent_id = ?").pluck().get(e, id);
                 if(!subfolderId) {
                     subfolderId = db.prepare("INSERT INTO folders (name, parent_id) VALUES (?, ?)").run(e, id).lastInsertRowid;
                     db.prepare("UPDATE folders SET timestamp = ? WHERE id = ?").run(Date.now(), id); // update folder timestamp if folder changed
+                } else {
+                    // check if folder has obsolete thumbnail entry
+                    let thumbnail = db.prepare("SELECT thumbnail FROM folders WHERE id = ?").pluck().get(subfolderId);
+                    if(thumbnail && !db.prepare("SELECT id FROM files WHERE id = ?").pluck().get(thumbnail))
+                        db.prepare("UPDATE folders SET thumbnail = ? WHERE id = ?").run(null, subfolderId);
                 }
                 if(recursive) await indexFolder(subfolderId, true, jobs.get("index_folder_"+id).id); // recursively index subfolders
                 break;

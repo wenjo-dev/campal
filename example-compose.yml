@@ -11,3 +11,4 @@ services:
       - "LOCALPATH_WHERE_TO_STORE_DB_AND_CACHE:/campal/data"
       - "LOCALPATH_TO_PICTURES_TO_ACCESS:/campal/mounts/PICTURES:ro"
       - "ANOTHER_PATH_TO_PICTURES_TO_ACCESS:/campal/mounts/MOREPICTURES:ro"
+    restart: always
